@@ -47,21 +47,68 @@ public class RocketEntity extends Entity {
                 currentFuel = Math.max(0, currentFuel - (burnRate / 20.0));
 
                 if (this.level().isClientSide()) {
-                    this.level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, this.getX(), this.getY() - 1.0, this.getZ(), 0, -0.5, 0);
-                    this.level().addParticle(ParticleTypes.FLAME, this.getX(), this.getY() - 0.5, this.getZ(), 0, -0.8, 0);
+                    // Stage 1: Intense Core Flame Plume
+                    for (int i = 0; i < 3; i++) {
+                        double spreadX = (this.random.nextDouble() - 0.5) * 0.4;
+                        double spreadZ = (this.random.nextDouble() - 0.5) * 0.4;
+                        this.level().addParticle(
+                                ParticleTypes.FLAME,
+                                this.getX() + spreadX,
+                                this.getY() - 0.2,
+                                this.getZ() + spreadZ,
+                                spreadX * 0.2,
+                                -1.2,
+                                spreadZ * 0.2
+                        );
+                    }
+
+                    // Stage 2: Heavy Smoke Trail
+                    this.level().addParticle(
+                            ParticleTypes.CAMPFIRE_COSY_SMOKE,
+                            this.getX(),
+                            this.getY() - 0.8,
+                            this.getZ(),
+                            (this.random.nextDouble() - 0.5) * 0.1,
+                            -0.4,
+                            (this.random.nextDouble() - 0.5) * 0.1
+                    );
+
+                    // Stage 3: Transonic Vapor Cone (high-velocity shockwave ring)
+                    if (velocityY > 80.0 && velocityY < 140.0) {
+                        for (int angle = 0; angle < 360; angle += 45) {
+                            double rad = Math.toRadians(angle);
+                            this.level().addParticle(
+                                    ParticleTypes.CLOUD,
+                                    this.getX() + Math.cos(rad) * 0.8,
+                                    this.getY() + 0.5,
+                                    this.getZ() + Math.sin(rad) * 0.8,
+                                    Math.cos(rad) * 0.1,
+                                    0.05,
+                                    Math.sin(rad) * 0.1
+                            );
+                        }
+                    }
                 }
             } else {
+                // Engine flameout / coast phase
                 velocityY -= (gravity / 20.0);
+                if (this.level().isClientSide()) {
+                    this.level().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() - 0.3, this.getZ(), 0, -0.1, 0);
+                }
             }
 
+            // Atmosphere Drag
             double airDensity = Math.max(0, 1.0 - (this.getY() / 1000.0));
             double drag = 0.5 * airDensity * (velocityY * velocityY) * 0.42;
             velocityY -= (drag / totalMass) * Math.signum(velocityY);
 
-            this.setDeltaMovement(new Vec3(0, velocityY / 20.0, 0));
+            // Shudder/rumble under full thrust
+            double rumble = (currentFuel > 0 && velocityY > 20) ? (this.random.nextDouble() - 0.5) * 0.06 : 0.0;
+
+            this.setDeltaMovement(new Vec3(rumble, velocityY / 20.0, rumble));
             this.move(MoverType.SELF, this.getDeltaMovement());
 
-            if (this.getY() > 500 && !this.level().isClientSide()) {
+            if (this.getY() > 550 && !this.level().isClientSide()) {
                 this.discard();
             }
         }
