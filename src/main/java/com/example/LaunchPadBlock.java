@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -27,6 +28,13 @@ public class LaunchPadBlock extends Block {
             rocket.setPos(pos.getX() + 0.5, pos.getY() + 1.0, pos.getZ() + 0.5);
             rocket.configureSpecs(fuelMass, dryMass, thrust, 320.0);
             level.addFreshEntity(rocket);
+
+            // Give emergency parachute to the player if they don't already have one
+            ItemStack parachuteStack = new ItemStack(SpaceProgram.PARACHUTE);
+            if (!player.getInventory().contains(parachuteStack)) {
+                player.getInventory().add(parachuteStack);
+                player.sendSystemMessage(Component.literal("§e[Ejection System] Emergency Parachute equipped to your pack."));
+            }
 
             player.startRiding(rocket);
             rocket.ignite();
