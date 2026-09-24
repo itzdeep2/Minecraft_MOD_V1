@@ -108,7 +108,24 @@ public class RocketEntity extends Entity {
             this.setDeltaMovement(new Vec3(rumble, velocityY / 20.0, rumble));
             this.move(MoverType.SELF, this.getDeltaMovement());
 
-            if (this.getY() > 550 && !this.level().isClientSide()) {
+            // Transition to ISS Orbital Base upon reaching world ceiling
+            if (this.getY() >= 320.0 && !this.level().isClientSide()) {
+                net.minecraft.core.BlockPos stationPos = new net.minecraft.core.BlockPos(
+                    (int) this.getX(), 
+                    320, 
+                    (int) this.getZ()
+                );
+
+                for (Entity passenger : this.getPassengers()) {
+                    if (passenger instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                        passenger.stopRiding();
+                        serverPlayer.teleportTo(stationPos.getX() + 0.5, stationPos.getY() + 1.0, stationPos.getZ() + 0.5);
+                        SpaceStationGenerator.buildOrbitalStation(this.level(), stationPos, serverPlayer);
+                    }
+                }
+
+                // Play docking sound and purge spent booster
+                this.level().playSound(null, stationPos, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 2.0f, 1.2f);
                 this.discard();
             }
         }
