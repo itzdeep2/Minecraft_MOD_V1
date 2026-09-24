@@ -20,6 +20,8 @@ public class SpaceProgram implements ModInitializer {
 
     public static final Block LAUNCH_PAD = new LaunchPadBlock(BlockBehaviour.Properties.of().strength(4.0f).requiresCorrectToolForDrops());
 
+    public static final Item PARACHUTE = new ParachuteItem(new Item.Properties().stacksTo(1));
+
     public static final EntityType<RocketEntity> ROCKET = Registry.register(
             BuiltInRegistries.ENTITY_TYPE,
             new ResourceLocation(MOD_ID, "rocket"),
@@ -34,8 +36,14 @@ public class SpaceProgram implements ModInitializer {
         BlockItem padItem = new BlockItem(LAUNCH_PAD, new Item.Properties());
         Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "launch_pad"), padItem);
 
+        Registry.register(BuiltInRegistries.ITEM, new ResourceLocation(MOD_ID, "parachute"), PARACHUTE);
+
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content -> {
             content.accept(LAUNCH_PAD);
+        });
+
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(content -> {
+            content.accept(PARACHUTE);
         });
     }
 }
