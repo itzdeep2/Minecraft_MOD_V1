@@ -12,6 +12,16 @@ To make survival exploration practical, boarding the vehicle automatically equip
 
 ### Screenshots
 
+| Launch Pad Setup | Rocket Ignition & Climb |
+| :---: | :---: |
+| ![Launch Pad](launchpadlooks.png) | ![Ignition](ignitedrocket.png) |
+
+| Parachute Deployment | Safe Touchdown |
+| :---: | :---: |
+| ![Parachute Deployed](paracutedeployed.png) | ![Safe Landing](successfullanding.png) |
+
+### Demo Video
+
 https://drive.google.com/file/d/1WQWpkT7SSfuaiHYjMZ-7b6_ci8R8KyoY/view?usp=drivesdk
 
 ## Getting Started
